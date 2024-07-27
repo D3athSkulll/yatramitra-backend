@@ -28,7 +28,17 @@ const airTicketSchema = new mongoose.Schema({
   pnr:{
     type:String,
     required:true
-  }
+  },
+  passengers:[{
+    name:{
+      type:String,
+      required:true
+    },
+    age:{
+      type:Number,
+      required:true
+  }}
+]
 });
 
 module.exports = airTicketSchema;

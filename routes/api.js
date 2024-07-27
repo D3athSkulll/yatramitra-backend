@@ -1,17 +1,14 @@
 const express = require("express");
 const Amadeus = require("amadeus");
+const {isLoggedIn} = require("../middleware/login");
 require("dotenv").config();
+
 const amadeus = new Amadeus({
     clientId: process.env.ID,
     clientSecret: process.env.SECRET,
   });
 const router = express.Router();
 
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) return next();
-    res.status(401).json({message:"Not logged in"}); // Redirect unauthenticated requests to login page
-  }
-  
 router.get("/autocomplete", isLoggedIn, async (req, res) => {
     const { query } = req;
     console.log(req.user);
@@ -44,6 +41,30 @@ router.get('/flights',isLoggedIn, async (req, res) => {
             ob.returnDate = req.query.returnDate;
         }
         const {data} = await amadeus.shopping.flightOffersSearch.get(ob);
+        res.json(data);
+    }
+    catch(e){
+        console.log(e);
+        res.status(500).json([]);
+    }
+});
+//payment gateway
+
+router.post("/payment-intent", async (req, res) => {
+    const { paymentIntentId } = req.body;
+    try {
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+        console.log(paymentIntent.metadata);
+        res.json(paymentIntent);
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({message:"Error"});
+    }
+});
+router.post("/book",isLoggedIn, async (req, res) => {
+    const {body} = req;
+    try{
+        const {data} = await amadeus.booking.flightOrders.post(body);
         res.json(data);
     }
     catch(e){

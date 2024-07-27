@@ -10,12 +10,14 @@ const model = require('./models/pass');
 const app = express();
 const api = require("./routes/api");
 const auth = require("./routes/login");
+const payment = require("./routes/payment");
+const { isLoggedIn } = require("./middleware/login");
 
 app.use(session({ secret: 'your_secret_key', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static("public"));
 
+app.use(express.static("public"),isLoggedIn);
 passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password'
@@ -61,6 +63,7 @@ passport.deserializeUser(async (obj, done) => {
 
 app.use("/api", api);
 app.use("/auth",auth);
+app.use("/payment",payment);
 
 app.get("/*",(req,res)=>{
     res.status(404).json({message:"Page not found"});
