@@ -1,7 +1,7 @@
 const mongoose = require("../connections/db");
 const AirTicket = require("./AirTicket");
 const TrainTicket = require("./TrainTicket");
-const cabTicket = require("./CabTicket");
+const busTicket = require("./BusTicket");
 const userSchema = new mongoose.Schema({
     name: {
       type: String,
@@ -16,10 +16,14 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    number:{
+      type: String,
+      required: true
+    },
     tickets: {
       air: [AirTicket],
       train: [TrainTicket],
-      cab: [cabTicket]
+      bus: [busTicket]
     }
   });
   

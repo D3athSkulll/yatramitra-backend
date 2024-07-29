@@ -8,13 +8,13 @@ const router = express.Router();
 const formDB = mongoose.model("formData", formDataSchema);
 router.use(express.json());
 router.post("/create", async (req, res) => {
-    const { uniqueID } = req.body; // Your form data from the client
+    const { uniqueID } = req.body; 
     const amount = await calculateAmount(uniqueID);
     //amount = parseInt(amount);
     const paymentIntent = await stripe.paymentIntents.create({
-        amount: amount, // Implement this based on your pricing
+        amount: amount, 
         currency: 'inr',
-        metadata: { uniqueID }, // Include the unique ID in metadata
+        metadata: { uniqueID }, 
     });
 
     res.json({clientSecret: paymentIntent.client_secret, uniqueID});
@@ -27,7 +27,7 @@ router.post("/data",async(req,res)=>{
     const data = await formDB.findById(uniqueID);
     res.json(data);
 });
-router.post("/save",isLoggedIn,async(req,res)=>{
+router.post("/save",async(req,res)=>{
     const {formData} = req.body;
     const {source,destination,departure,arrival,price,passengers} = formData;
     const uniqueId = await formDB.create({

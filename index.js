@@ -1,76 +1,28 @@
 const express = require("express");
-const Amadeus = require("amadeus");
-// const db = require("./connections/db");
 const session = require('express-session');
-const passport = require('passport'); // Moved up
-const LocalStrategy = require('passport-local').Strategy;
-const crypt = require('bcrypt');
-const model = require('./models/pass'); 
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
+require("dotenv").config();
 const app = express();
 const api = require("./routes/api");
-const auth = require("./routes/login");
+const auth = require("./routes/auth");
 const payment = require("./routes/payment");
-const { isLoggedIn } = require("./middleware/login");
 
-app.use(session({ secret: 'your_secret_key', resave: false, saveUninitialized: true }));
-app.use(passport.initialize());
-app.use(passport.session());
+const JWT_SECRET = process.env.SECRET; // Replace with your actual secret
+app.use(cookieParser());
+app.use(session({ secret: JWT_SECRET, resave: false, saveUninitialized: true }));
+app.use(cors());
+app.use(express.static("public"));
+app.use(express.json());
 
-app.use(express.static("public"),isLoggedIn);
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-  },
-  async (email, password, done) => {
-    try {
-      const user = await model.findOne({ email: email });
-      if (!user) {
-        return done(null, false, { message: 'Incorrect email.' });
-      }
-      const isValid = await crypt.compare(password, user.password);
-      if (!isValid) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-      return done(null, user);
-    } catch (e) {
-      return done(e);
-    }
-  }
-));
+// JWT Middleware
 
-// Serialize user
-passport.serializeUser((user, done) => {
-  done(null, {id: user.id, email: user.email});
-});
-
-// Deserialize user
-passport.deserializeUser(async (obj, done) => {
-  try {
-    const user = await model.findById(obj.id);
-    if(user){
-        user.email = obj.email;
-        done(null,user);
-    }
-    else{
-        done(new Error("User not found"),null);
-    }
-  } catch (e) {
-    done(e, null);
-  }
-});
-
-
+// Routes
 app.use("/api", api);
-app.use("/auth",auth);
-app.use("/payment",payment);
+app.use("/auth", auth);
+app.use("/payment", payment);
 
-app.get("/*",(req,res)=>{
-    res.status(404).json({message:"Page not found"});
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
 });
-app.post("/*",(req,res)=>{
-    res.status(404).json({message:"Page not found"});
-});
-app.listen(4000,()=>{
-    console.log("Server started at port 4000");
-})

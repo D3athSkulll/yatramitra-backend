@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const cabTicketSchema = new mongoose.Schema({
+const busTicketSchema = new mongoose.Schema({
   source: {
     type: String,
     required: true
@@ -41,4 +41,4 @@ const cabTicketSchema = new mongoose.Schema({
 ]
 });
 
-module.exports = cabTicketSchema;
+module.exports = busTicketSchema;

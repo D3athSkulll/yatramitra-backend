@@ -9,7 +9,7 @@ const amadeus = new Amadeus({
   });
 const router = express.Router();
 
-router.get("/autocomplete", isLoggedIn, async (req, res) => {
+router.get("/autocomplete", async (req, res) => {
     const { query } = req;
     console.log(req.user);
     try{
@@ -24,7 +24,7 @@ router.get("/autocomplete", isLoggedIn, async (req, res) => {
         res.status(500).json([]);
     }
 });
-router.get('/flights',isLoggedIn, async (req, res) => {
+router.get('/flights', async (req, res) => {
     const {query} = req;
     try{
         const ob = {
@@ -41,6 +41,7 @@ router.get('/flights',isLoggedIn, async (req, res) => {
             ob.returnDate = req.query.returnDate;
         }
         const {data} = await amadeus.shopping.flightOffersSearch.get(ob);
+        console.log(data);
         res.json(data);
     }
     catch(e){
@@ -61,7 +62,7 @@ router.post("/payment-intent", async (req, res) => {
         res.status(500).json({message:"Error"});
     }
 });
-router.post("/book",isLoggedIn, async (req, res) => {
+router.post("/book", async (req, res) => {
     const {body} = req;
     try{
         const {data} = await amadeus.booking.flightOrders.post(body);
