@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+const mongoose = require('../connections/db'); 
 const busTicketSchema = new mongoose.Schema({
   source: {
     type: String,

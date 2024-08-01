@@ -10,7 +10,6 @@ router.use(express.json());
 router.post("/create", async (req, res) => {
     const { uniqueID } = req.body; 
     const amount = await calculateAmount(uniqueID);
-    //amount = parseInt(amount);
     const paymentIntent = await stripe.paymentIntents.create({
         amount: amount, 
         currency: 'inr',
@@ -29,7 +28,8 @@ router.post("/data",async(req,res)=>{
 });
 router.post("/save",async(req,res)=>{
     const {formData} = req.body;
-    const {source,destination,departure,arrival,price,passengers} = formData;
+    const {source,destination,departure,arrival,passengers} = formData;
+    const price = 1000;
     const uniqueId = await formDB.create({
         source,
         destination,
@@ -39,11 +39,16 @@ router.post("/save",async(req,res)=>{
         passengers,
         type:formData.type
     });
-    res.json({id:uniqueId._id});
+    const amount = await calculateAmount(price);
+    const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount, 
+        currency: 'inr',
+        metadata: { uniqueId: String(uniqueId) }, 
+    });
+
+    res.json({clientSecret: paymentIntent.client_secret});
 });
-async function calculateAmount(uniqueID) {
-    const data = await formDB.findById(uniqueID);
-    let amount = data.price;
+async function calculateAmount(amount) {
     return amount*100;
 }
 

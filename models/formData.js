@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const formDataSchema = new mongoose.Schema({
+const mongoose = require('../connections/db');
+ const formDataSchema = new mongoose.Schema({
     type: {
         type: String,
         required: true
@@ -13,11 +13,11 @@ const formDataSchema = new mongoose.Schema({
         required: true
     },
     departure: {
-        type: String,
+        type: Date,
         required: true
     },
     arrival: {
-        type: String,
+        type: Date,
         required: true
     },
     price: {
