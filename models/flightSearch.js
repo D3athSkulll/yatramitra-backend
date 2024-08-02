@@ -27,7 +27,8 @@ const flightSchema = new mongoose.Schema({
     dates: [{ type: String, required: true }], // Array of departure dates
     departure_time: { type: String, required: true }, // Time in 24:00:00 format
     arrival_time: { type: String, required: true }, // Time in 24:00:00 format
-    availableSeats: { type: Number, required: true }
+    availableSeats: { type: Number, required: true },
+    price: {type: Number, required: true}
 });
 
 const Flight = mongoose.model('Flights', flightSchema);
