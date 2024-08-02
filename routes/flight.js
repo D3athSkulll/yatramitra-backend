@@ -42,7 +42,7 @@ router.get("/autocomplete", async (req, res) => {
     }
 });
 router.get('/search', async (req, res) => {
-    const { origin, destination, departureDate, adults } = req.query;
+    const { origin, destination, departureDate, returnDate, adults } = req.query;
 
     try {
         const data = await Flight.find({
@@ -62,16 +62,46 @@ router.get('/search', async (req, res) => {
             const travelTime = calculateDuration(flight.departure_time, flight.arrival_time);
             
             const airlineName = airlineMap[flight.airline_id] || 'Unknown';
-
+            const {dates, airline_id, ...flightData} = flight;
             return {
-                ...flight,
+                ...flightData,
                 travel_time: travelTime,
                 airline_name: airlineName // Add airline name
             };
         });
 
         processedFlights.sort((a, b) => a.travel_time - b.travel_time);
-        res.json(processedFlights);
+        var returnFlightsProcessed = [];
+        if(returnDate){
+            const returnFlights = await Flight.find({
+                origin: origin,
+                destination: destination,
+                dates: departureDate,
+                availableSeats: { $gt: adults }
+            }).lean();
+    
+             returnFlightsProcessed = returnFlights.map(flight => {
+                const travelTime = calculateDuration(flight.departure_time, flight.arrival_time);
+                
+                const airlineName = airlineMap[flight.airline_id] || 'Unknown';
+                const {dates, airline_id, ...flightData} = flight;
+                return {
+                    ...flightData,
+                    travel_time: travelTime,
+                    airline_name: airlineName // Add airline name
+                };
+            });
+    
+        }
+        
+        returnFlightsProcessed.sort((a, b) => a.travel_time - b.travel_time);
+        const final = {
+            isOneWay: returnDate === undefined,
+            departureFlights: processedFlights,
+            returnFlights: returnFlightsProcessed
+
+        }
+        res.json(final);
     } catch (e) {
         console.error(e); 
         res.status(500).json({ error: 'Internal Server Error' });

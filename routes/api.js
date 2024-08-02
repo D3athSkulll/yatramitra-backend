@@ -1,5 +1,4 @@
 const express = require("express");
-const Amadeus = require("amadeus");
 const {isLoggedIn} = require("../middleware/login");
 require("dotenv").config();
 const flight = require("./flight");
