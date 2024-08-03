@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require('express-session');
 const cors = require('cors');
+const path = require("path");
 const cookieParser = require('cookie-parser');
 
 require("dotenv").config();
@@ -8,16 +9,24 @@ const app = express();
 const api = require("./routes/api");
 const auth = require("./routes/auth");
 const payment = require("./routes/payment");
+const { isLoggedIn } = require("./middleware/login");
 
 const JWT_SECRET = process.env.SECRET; // Replace with your actual secret
 app.use(cookieParser());
 app.use(session({ secret: JWT_SECRET, resave: false, saveUninitialized: true }));
 app.use(cors());
-app.use(express.static("public"));
 app.use(express.json());
-
+app.use(express.static(path.join(__dirname, "../frontend/public")));
+app.use("/login", (req,res)=>{
+  res.sendFile(path.join(__dirname, "../frontend/public/views/login.html"));
+})
 // JWT Middleware
-
+app.use("/protected", isLoggedIn, (req,res)=>{
+  res.sendFile(path.join(__dirname, "../frontend/public/views/homepage.html"));
+});
+app.use("/search",(req,res)=>{
+  res.sendFile(path.join(__dirname, "../frontend/public/views/flightsearch.html"));
+})
 // Routes
 app.use("/api", api);
 app.use("/auth", auth);
