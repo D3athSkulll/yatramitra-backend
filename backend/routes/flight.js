@@ -22,8 +22,9 @@ const calculateDuration = (departureTime, arrivalTime) => {
 
 const router = express.Router();
 
-router.get("/autocomplete", async (req, res) => {
+router.get("/autocomplete", isLoggedIn, async (req, res) => {
     const { query } = req.query;
+    console.log(req.user);
     console.log(query);
     try {
         const searchRegex = new RegExp(`^${query}`, 'i');

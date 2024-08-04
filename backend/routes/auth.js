@@ -22,8 +22,8 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    req.session.token = token;
-      return res.json({ message: "Login successful", token, user });
+    console.log(token);
+    return res.json({ message: "Login successful", token, user });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error" });
@@ -54,7 +54,8 @@ router.post("/register", async (req, res) => {
     await user.save();
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    req.session.token = token;
+    // req.session.token = token;
+    console.log(token);
     return res.json({ message: "Registration and login successful", token, user });
   } catch (error) {
     console.error(error);
