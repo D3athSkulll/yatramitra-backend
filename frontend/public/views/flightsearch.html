@@ -1,51 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../styles/flightsearch.css">
-    <link rel="stylesheet" href="../styles/flightsearchNavbar.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles/flightsearch.css" />
+    <link rel="stylesheet" href="../styles/flightsearchNavbar.css" />
+    <link rel="stylesheet" href="../styles/navbar.css" />
     <title>Yatramitra</title>
-</head>
-<body>
-    <nav>
-        <form id = "searchForm">
-            <div class="search-header">
-                <div class="search-field">
-                    <label for="trip-type">Trip</label>
-                    <select id="trip-type">
-                        <option>Round Trip</option>
-                        <option>One Way</option>
-                    </select>
-                </div> 
-                <div class="search-field">
-                    <label for="from">From</label>
-                    <input type="text" id="from" placeholder="" autocomplete="off">
-                    <div id="suggestions" class="suggestions"></div>
-                </div>
-                <button class="swap-button">⇄</button>
-                <div class="search-field">
-                    <label for="to">To</label>
-                    <input type="text" id="to" value="" />
-                    <div id="suggestions2" class="suggestions"></div>
-                    
-                </div>
-                <div class="search-field date-field">
-                    <label for="depart-date">Departure Date</label>
-                    <input type="date" id="depart-date" value="" />
-                </div>
-                <div class="search-field date-field">
-                    <label for="return-date">Return Date</label>
-                    <input type="date" id="return-date" value="" />
-                </div>
-                <button class="modify-button" type="submit">Modify Search</button>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="nav-bar">
+          <i class="bx bx-menu sidebarOpen"></i>
+          <span class="logo navLogo"><a href="#">Yatramitra</a></span>
+
+          <div class="menu">
+            <div class="logo-toggle">
+              <span class="logo"><a href="#">Yatramitra</a></span>
+              <i class="bx bx-x siderbarClose"></i>
             </div>
-        </form>
-    </nav>
+
+            <ul class="nav-links">
+              <li>
+                <a href="#"><span>Home</span></a>
+              </li>
+              <li>
+                <a href="#"><span>About</span></a>
+              </li>
+              <li>
+                <a href="#"><span>Services</span></a>
+              </li>
+              <li>
+                <a href="#"><span>Contact</span></a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="darkLight-searchBox">
+            <div class="dark-light">
+              <i class="bx bx-moon moon"></i>
+              <i class="bx bx-sun sun"></i>
+            </div>
+
+            <button class="loginButton" type="submit"><a>Login</a></button>
+          </div>
+        </div>
+        <div class="flight-navbar">
+          <form id="searchForm">
+            <div class="search-header">
+              <div class="search-field">
+                <label for="trip-type">Trip</label>
+                <select id="trip-type">
+                  <option>Round Trip</option>
+                  <option>One Way</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label for="from">From</label>
+                <input
+                  type="text"
+                  id="from"
+                  placeholder=""
+                  autocomplete="off"
+                />
+                <div id="suggestions" class="suggestions"></div>
+              </div>
+              <button class="swap-button">⇄</button>
+              <div class="search-field">
+                <label for="to">To</label>
+                <input type="text" id="to" value="" />
+                <div id="suggestions2" class="suggestions"></div>
+              </div>
+              <div class="search-field date-field">
+                <label for="depart-date">Departure Date</label>
+                <input type="date" id="depart-date" value="" />
+              </div>
+              <div class="search-field date-field">
+                <label for="return-date">Return Date</label>
+                <input type="date" id="return-date" value="" />
+              </div>
+              <button class="modify-button" type="submit">Modify Search</button>
+            </div>
+          </form>
+        </div>
+      </nav>
+    </header>
     <div class="flight">
-   
+      <div class="departure-main-content">
+        <div class="flight-info">
+          <div class="flight-logo">
+            <!-- Logo placeholder -->
+            <!-- <img src="path/to/logo.png" alt="Airline Logo" style="width: 100%; height: 100%;"> -->
+          </div>
+          <div class="flight-details">
+            <div class="flight-times">
+              <span
+                >${calculateTime(flight.departure_time)} –
+                ${calculateTime(flight.arrival_time)}</span
+              >
+              <span style="font-size: 14px; color: #ccc"
+                >${flight.airline_name}</span
+              >
+            </div>
+            <div class="flight-duration">
+              <span> ${calculateTravelTime(flight.travel_time)}</span>
+              <span style="font-size: 14px; color: #ccc"
+                >${origin}-${destination}</span
+              >
+            </div>
+            <div class="flight-type">
+              <span>Nonstop</span>
+            </div>
+            <div class="flight-price">₹ ${flight.price}</div>
+          </div>
+        </div>
+      </div>
+      <div class="flight">
+        <div class="arrival-main-content">
+          <div class="flight-info">
+            <div class="flight-logo">
+              <!-- Logo placeholder -->
+              <!-- <img src="path/to/logo.png" alt="Airline Logo" style="width: 100%; height: 100%;"> -->
+            </div>
+            <div class="flight-details">
+              <div class="flight-times">
+                <span
+                  >${calculateTime(flight.departure_time)} –
+                  ${calculateTime(flight.arrival_time)}</span
+                >
+                <span style="font-size: 14px; color: #ccc"
+                  >${flight.airline_name}</span
+                >
+              </div>
+              <div class="flight-duration">
+                <span> ${calculateTravelTime(flight.travel_time)}</span>
+                <span style="font-size: 14px; color: #ccc"
+                  >${origin}-${destination}</span
+                >
+              </div>
+              <div class="flight-type">
+                <span>Nonstop</span>
+              </div>
+              <div class="flight-price">₹ ${flight.price}</div>
+            </div>
+          </div>
+        </div>
+     
+
+      <!---  sss-->
     </div>
     <div id="flight-results"></div>
-    <script src = "../scripts/flightsearch.js"></script>
-</body>
+    <script src="../scripts/flightsearch.js"></script>
+  </body>
 </html>
