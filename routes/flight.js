@@ -24,8 +24,7 @@ const router = express.Router();
 
 router.get("/autocomplete", isLoggedIn, async (req, res) => {
     const { query } = req.query;
-    console.log(req.user);
-    console.log(query);
+
     try {
         const searchRegex = new RegExp(`^${query}`, 'i');
         const airports = await Airport.find({
@@ -45,7 +44,6 @@ router.get("/autocomplete", isLoggedIn, async (req, res) => {
 });
 router.post('/search', async (req, res) => {
     const { origin, destination, departureDate, returnDate, adults } = req.body;
-    console.log(origin, destination, departureDate, returnDate, adults);
     try {
         const data = await Flight.find({
             origin: origin,

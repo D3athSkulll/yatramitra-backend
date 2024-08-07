@@ -5,7 +5,6 @@ const JWT_SECRET = process.env.SECRET; // Replace with your actual secret
 const isLoggedIn = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  console.log(token);
   if (!token) {
     return res.status(401).json({ message: "Access denied. No token provided." });
   }
