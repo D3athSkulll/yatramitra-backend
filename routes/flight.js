@@ -66,7 +66,7 @@ router.post('/search', async (req, res) => {
             return {
                 ...flightData,
                 travel_time: travelTime,
-                airline_name: airlineName // Add airline name
+                airline_name: airlineName,
             };
         });
 
@@ -88,7 +88,7 @@ router.post('/search', async (req, res) => {
                 return {
                     ...flightData,
                     travel_time: travelTime,
-                    airline_name: airlineName // Add airline name
+                    airline_name: airlineName,
                 };
             });
     
@@ -98,8 +98,10 @@ router.post('/search', async (req, res) => {
         const final = {
             isOneWay: returnDate === undefined,
             departureFlights: processedFlights,
-            returnFlights: returnFlightsProcessed
-
+            returnFlights: returnFlightsProcessed,
+            adults,
+            departureDate,
+            arrivalDate: returnDate? returnDate : null
         }
         res.json(final);
     } catch (e) {

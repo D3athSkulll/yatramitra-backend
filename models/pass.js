@@ -10,5 +10,5 @@ const userSchema = new mongoose.Schema({
       required: true
     }
   });
-  const User = mongoose.model("login", userSchema);
+  const User = mongoose.model("login", passSchema);
   module.exports = User;

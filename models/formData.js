@@ -4,6 +4,10 @@ const mongoose = require('../connections/db');
         type: String,
         required: true
     },
+    email:{
+        type: String,
+        required: true
+    },
     source: {
         type: String,
         required: true
@@ -18,6 +22,18 @@ const mongoose = require('../connections/db');
     },
     arrival: {
         type: Date,
+        required: false
+    },
+    arrivalTime:{
+        type: String,
+        required: false
+    },
+    departureTime:{
+        type: String,
+        required: true
+    },
+    flightID:{
+        type: String,
         required: true
     },
     price: {
@@ -31,6 +47,10 @@ const mongoose = require('../connections/db');
         },
         age: {
             type: Number,
+            required: true
+        },
+        gender:{
+            type: String,
             required: true
         }
     }]

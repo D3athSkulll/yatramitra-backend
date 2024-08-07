@@ -3,7 +3,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const model = require("../models/pass");
+const model = require("../models/user");
 const { isLoggedIn } = require('../middleware/login');
 
 const JWT_SECRET = process.env.SECRET; // Replace with your actual secret
@@ -21,7 +21,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: "Your credentials are incorrect. Please try again." });
     }
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, email }, JWT_SECRET, { expiresIn: '1h' });
     console.log(token);
     return res.json({ message: "Login successful", token, user });
   } catch (error) {
@@ -53,7 +53,7 @@ router.post("/register", async (req, res) => {
     });
     await user.save();
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
     // req.session.token = token;
     console.log(token);
     return res.json({ message: "Registration and login successful", token, user });

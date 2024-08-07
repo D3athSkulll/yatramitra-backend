@@ -14,7 +14,7 @@ const airTicketSchema = new mongoose.Schema({
   },
   arrival: {
     type: Date,
-    required: true
+    required: false
   },
   price: {
     type: Number,
@@ -22,7 +22,7 @@ const airTicketSchema = new mongoose.Schema({
   },
   class:{
     type:String,
-    required:true
+    required:false
   },
   pnr:{
     type:String,
