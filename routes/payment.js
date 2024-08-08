@@ -19,32 +19,34 @@ async function sendEmailAndSave(data, payment){
     user.tickets.air.push(data);
     await user.save();
     const html = genHTML(data, payment);
+
     const email = process.env.EMAIL;
     const pass = process.env.PASS;
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-            user: email,
-            pass: pass
-        }
-    });
-    const mailOptions = {
-        from:{
-            name: "Yatra Mitra",
-            address: email
-        },
-        to: data.email,
-        subject: "Flight Ticket",
-        html: html
-    };
-    transporter.sendMail(mailOptions, (err, info)=>{
-        if(err){
-            console.log(err);
-        }
-    });
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: email,
+                pass: pass
+            }
+        });
+        const mailOptions = {
+            from:{
+                name: "Yatra Mitra",
+                address: email
+            },
+            to: data.email,
+            subject: "Flight Ticket",
+            html: html,
+        };
+        transporter.sendMail(mailOptions, (err, info)=>{
+            if(err){
+                console.log(err);
+            }
+        });
+    
     console.log("Email sent and data saved");
 }
 router.post("/data",async(req,res)=>{
