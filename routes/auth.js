@@ -62,12 +62,8 @@ router.post("/register", async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
-router.post("/protected",isLoggedIn,(req,res,next)=>{
-  res.json({message:"You are logged in"});
-})
-router.post('/logout', (req, res) => {
-  // JWT does not require server-side logout. Client should just discard the token.
-  res.json({ message: "Logout successful" });
+router.get("/verify",isLoggedIn,(req,res)=>{
+  return res.status(200).json({message:"User is logged in"});
 });
 
 module.exports = router;
