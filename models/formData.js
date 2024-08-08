@@ -32,9 +32,13 @@ const mongoose = require('../connections/db');
         type: String,
         required: true
     },
-    flightID:{
+    departureflightID:{
         type: String,
         required: true
+    },
+    arrivalflightID:{
+        type: String,
+        required: false
     },
     price: {
         type: Number,

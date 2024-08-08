@@ -12,9 +12,25 @@ const airTicketSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  departureflightID:{
+    type:String,
+    required:true
+  },
   arrival: {
     type: Date,
     required: false
+  },
+  arrivalflightID:{
+    type:String,
+    required:false
+  },
+  arrivalTime:{
+    type: String,
+    required: false
+  },
+  departureTime:{
+    type: String,
+    required: true
   },
   price: {
     type: Number,

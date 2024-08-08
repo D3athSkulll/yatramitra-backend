@@ -31,6 +31,7 @@ router.post("/data",async(req,res)=>{
         const data = await formDB.findById(uniqueID);
         // console.log(data);
         sendEmailAndSave(data.toObject());
+        res.status(200).json({message:"Data saved"});
     }catch(err){
         console.log(err);
         res.status(500).json({message:"Data not found"});
@@ -38,7 +39,8 @@ router.post("/data",async(req,res)=>{
 });
 router.post("/save",isLoggedIn, async(req,res)=>{
     const formData = req.body;
-    const {source,destination,departure,arrival,passengers, type, price, flightID, arrivalTime, departureTime} = formData;
+    const {source,destination,departure,arrival,passengers, type, price, flightID, arrivalflightID, arrivalTime, departureTime} = formData;
+    console.log(arrivalflightID);
     const uniqueId = await formDB.create({
         source,
         destination,
@@ -47,7 +49,8 @@ router.post("/save",isLoggedIn, async(req,res)=>{
         price,
         passengers,
         type,
-        flightID,
+        departureflightID: flightID,
+        arrivalflightID,
         arrivalTime,
         departureTime,
         email: req.user.email
