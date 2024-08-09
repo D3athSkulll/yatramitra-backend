@@ -39,17 +39,17 @@ const generateHTML = (data, payment) => {
                 <tbody>
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 10px;">${data.departureflightID} - ${data.source} to ${data.destination}<br>Travel Date - ${data.departure.toLocaleDateString('en-IN')}, ${data.departureTime}<br>${data.passengers.map(p => p.name).join(", ")}</td>
-                        <td style="border: 1px solid #ddd; padding: 10px;">₹${payment.amount}</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">₹${data.departurePrice}</td>
                         <td style="border: 1px solid #ddd; padding: 10px;">0</td>
-                        <td style="border: 1px solid #ddd; padding: 10px;">₹${payment.amount}</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">₹${data.departurePrice}</td>
                     </tr>`
                     if(data.arrivalflightID){
                        html+= `
                         <tr>
                              <td style="border: 1px solid #ddd; padding: 10px;">${data.arrivalflightID} - ${data.destination} to ${data.source}<br>Travel Date - ${data.arrival.toLocaleDateString('en-IN')}, ${data.arrivalTime}<br>${data.passengers.map(p => p.name).join(", ")}</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">₹${payment.amount}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">₹${data.arrivalPrice}</td>
                             <td style="border: 1px solid #ddd; padding: 10px;">0</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">₹${payment.amount}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">₹${data.arrivalPrice}</td>
                         </tr>`
                     }
                       

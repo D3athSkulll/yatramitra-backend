@@ -40,6 +40,14 @@ const mongoose = require('../connections/db');
         type: String,
         required: false
     },
+    departurePrice:{
+        type: Number,
+        required: false
+    },
+    arrivalPrice:{
+        type: Number,
+        required: false
+    },
     price: {
         type: Number,
         required: true

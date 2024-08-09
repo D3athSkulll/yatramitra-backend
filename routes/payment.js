@@ -9,6 +9,7 @@ const nodemailer = require("nodemailer");
 const formDB = mongoose.model("formData", formDataSchema);
 const userSchema = require("../models/user");
 const genHTML = require("../middleware/html");
+const { Flight } = require("../models/flightSearch");
 router.use(express.json());
 function generatePNR(){
     return Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -58,7 +59,7 @@ router.post("/data",async(req,res)=>{
     const uniqueID = paymentIntent.metadata.uniqueId;
     try{
         const data = await formDB.findById(uniqueID);
-        sendEmailAndSave(data.toObject(),{amount: data.price/100, billingAddress});
+        sendEmailAndSave(data.toObject(),{amount: data.price, billingAddress});
         res.status(200).json({message:"Data saved"});
     }catch(err){
         console.log(err);
@@ -67,8 +68,18 @@ router.post("/data",async(req,res)=>{
 });
 router.post("/save",isLoggedIn, async(req,res)=>{
     const formData = req.body;
-    const {source,destination,departure,arrival,passengers, type, price, flightID, arrivalflightID, arrivalTime, departureTime} = formData;
-    console.log(arrivalflightID);
+    const {source,destination,departure,arrival,passengers, type, flightID, arrivalflightID, arrivalTime, departureTime} = formData;
+    var price = 0;
+    var arPrice=undefined;
+    var depPrice = 0;
+    price += (await Flight.findOne({flight_number:flightID})).price;
+    arPrice = price;
+    if (arrivalflightID){
+        price += (await Flight.findOne({flight_number:arrivalflightID})).price;
+        depPrice = (price-arPrice)*passengers.length;
+    }
+    arPrice = arPrice * passengers.length;
+    price = price * passengers.length;
     const uniqueId = await formDB.create({
         source,
         destination,
@@ -81,10 +92,12 @@ router.post("/save",isLoggedIn, async(req,res)=>{
         arrivalflightID,
         arrivalTime,
         departureTime,
-        email: req.user.email
+        email: req.user.email,
+        departurePrice: depPrice,
+        arrivalPrice: arPrice
     });
     const paymentIntent = await stripe.paymentIntents.create({
-        amount: price, 
+        amount: price*100, 
         currency: 'inr',
         metadata: { uniqueId: String(uniqueId._id) }, 
     });
