@@ -25,7 +25,7 @@ const generateHTML = (data, payment) => {
                     </div>
                 </div>
                 <p>Payment Method: ${payment.billingAddress.card.brand.toUpperCase()}</p>
-                <p>Booking Date: 07/11/2020</p>
+                <p>Booking Date: ${new Date().toLocaleDateString("en-in")}</p>
             </div>
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
