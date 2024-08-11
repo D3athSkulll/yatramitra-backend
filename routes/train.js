@@ -18,102 +18,44 @@ router.get("/autocomplete", async (req, res) => {
 router.post('/search', async (req, res) => {
   const departureStation = req.body.departureStation;
   const arrivalStation = req.body.arrivalStation;
-  const targetDate = req.body.Date;
-  const trains = await search(targetDate, departureStation, arrivalStation);
-  res.json(trains);
-});
-async function search(departureDate, departureStation, arrivalStation) {
-  const startOfDay = new Date(departureDate);
-  startOfDay.setHours(0, 0, 0, 0);
-  
-  const endOfDay = new Date(departureDate);
-  endOfDay.setHours(23, 59, 59, 999);
+  const requiredSeats = parseInt(req.body.seats);
+  const targetDate = new Date(req.body.Date);
+  const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
 
-  const trains = await Train.aggregate([
-    {
-      $match: {
-        schedules: {
-          $elemMatch: {
-            date: { $gte: startOfDay, $lt: endOfDay },
-            stoppages: {
-              $elemMatch: { station: departureStation },
-            }
-          }
-        }
+  const trains = await Train.find({
+    'schedules.stoppages': {
+      $elemMatch: {
+        station: departureStation,
+        departureTime: { $gte: startOfDay, $lte: endOfDay }
       }
     },
-    {
-      $addFields: {
-        matchedSchedule: {
-          $filter: {
-            input: '$schedules',
-            as: 'schedule',
-            cond: {
-              $and: [
-                { $gte: ['$$schedule.date', startOfDay] },
-                { $lt: ['$$schedule.date', endOfDay] },
-                {
-                  $anyElementTrue: {
-                    $map: {
-                      input: '$$schedule.stoppages',
-                      as: 'stop',
-                      in: { $eq: ['$$stop.station', departureStation] }
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      }
-    },
-    { $unwind: '$matchedSchedule' },
-    { $unwind: '$matchedSchedule.stoppages' },
-    {
-      $match: {
-        'matchedSchedule.stoppages.station': departureStation
-      }
-    },
-    {
-      $addFields: {
-        departureStoppage: '$matchedSchedule.stoppages',
-        arrivalStoppage: {
-          $arrayElemAt: [
-            {
-              $filter: {
-                input: '$matchedSchedule.stoppages',
-                as: 'stop',
-                cond: { $eq: ['$$stop.station', arrivalStation] }
-              }
-            },
-            0
-          ]
-        }
-      }
-    },
-    {
-      $match: {
-        'arrivalStoppage': { $exists: true },
-        $expr: {
-          $lt: ['$departureStoppage.arrivalTime', '$arrivalStoppage.arrivalTime']
-        }
-      }
-    },
-    {
-      $project: {
-        name: 1,
-        number: 1,
-        'departureStoppage': 1,
-        'arrivalStoppage': 1,
-        'matchedSchedule.availableSeats': 1
-      }
-    },
-    {
-      $sort: {
-        'departureStoppage.departureTime': 1
-      }
-    }
-  ]);
-  return trains;
-}
+    'schedules.stoppages.station': arrivalStation
+  });
+
+  const filteredTrains = trains.map(train => {
+    const relevantSchedules = train.schedules.filter(schedule => {
+      const departureIndex = schedule.stoppages.findIndex(stoppage => stoppage.station === departureStation);
+      const arrivalIndex = schedule.stoppages.findIndex(stoppage => stoppage.station === arrivalStation);
+
+      return departureIndex !== -1 &&
+             arrivalIndex !== -1 &&
+             departureIndex < arrivalIndex &&
+             schedule.availableSeats >= requiredSeats;
+    });
+
+    const scheduleData = relevantSchedules.map(schedule => {
+      return {
+        ...schedule.toObject(),
+        stoppages: schedule.stoppages.filter(stoppage => 
+          stoppage.departureTime >= startOfDay && stoppage.departureTime <= endOfDay
+        )
+      };
+    }).find(schedule => schedule.availableSeats >= requiredSeats);
+
+    return scheduleData ? { ...train.toObject(), schedules: [scheduleData] } : null;
+  }).filter(train => train !== null);
+  res.json(filteredTrains);
+});
+
 module.exports = router;
