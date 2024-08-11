@@ -44,14 +44,7 @@ router.post('/search', async (req, res) => {
              schedule.availableSeats >= requiredSeats;
     });
 
-    const scheduleData = relevantSchedules.map(schedule => {
-      return {
-        ...schedule.toObject(),
-        stoppages: schedule.stoppages.filter(stoppage => 
-          stoppage.departureTime >= startOfDay && stoppage.departureTime <= endOfDay
-        )
-      };
-    }).find(schedule => schedule.availableSeats >= requiredSeats);
+    const scheduleData = relevantSchedules.find(schedule => schedule.availableSeats >= requiredSeats);
 
     return scheduleData ? { ...train.toObject(), schedules: [scheduleData] } : null;
   }).filter(train => train !== null);
