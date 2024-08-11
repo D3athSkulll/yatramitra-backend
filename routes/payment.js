@@ -2,15 +2,12 @@ const express = require("express");
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE);
 const {isLoggedIn} = require("../middleware/login");
-const mongoose = require("../connections/db");
-const formDataSchema = require("../models/formData");
 const router = express.Router();
-const nodemailer = require("nodemailer");
-const formDB = mongoose.model("formData", formDataSchema);
+const formDB = require("../models/formData");
 const userSchema = require("../models/user");
-const genHTML = require("../middleware/html");
 const { Flight } = require("../models/flightSearch");
-const pdf = require("html-pdf");
+const { Train } = require("../models/trainSearch");
+const sendEmail = require("../helper/mail");
 router.use(express.json());
 function generatePNR(){
     return Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -19,45 +16,13 @@ async function sendEmailAndSave(data, payment){
     const user = await userSchema.findOne({email: data.email});
     data.pnr = generatePNR();
     user.tickets.air.push(data);
-    await user.save();
-    const html = genHTML(data, payment);
-    pdf.create(html, {format: "A4"}).toBuffer((err, buffer)=>{
-        if(err) return console.log(err);
-        const email = process.env.EMAIL;
-        const pass = process.env.PASS;
-            const transporter = nodemailer.createTransport({
-                service: "gmail",
-                host: "smtp.gmail.com",
-                port: 587,
-                secure: false,
-                auth: {
-                    user: email,
-                    pass: pass
-                }
-            });
-            const mailOptions = {
-                from:{
-                    name: "Yatra Mitra",
-                    address: email
-                },
-                to: data.email,
-                subject: "Flight Ticket",
-                html: html,
-                attachments: [{
-                    filename: `${data.pnr}.pdf`,
-                    content: buffer,
-                    encoding: 'base64'
-                }]
-            };
-            transporter.sendMail(mailOptions, (err, info)=>{
-                if(err){
-                    console.log(err);
-                }
-            });
-    });
-
-    
-    console.log("Email sent and data saved");
+    try{
+        await user.save();
+        sendEmail(data, payment);
+    }
+    catch(err){
+        console.log(err);
+    }
 }
 router.post("/data",async(req,res)=>{
     const {paymentID} = req.body;
@@ -77,15 +42,21 @@ router.post("/data",async(req,res)=>{
 });
 router.post("/save",isLoggedIn, async(req,res)=>{
     const formData = req.body;
-    const {source,destination,departure,arrival,passengers, type, flightID, arrivalflightID, arrivalTime, departureTime} = formData;
+    const {source,destination,departure,arrival,passengers, type, departureID, arrivalID, arrivalTime, departureTime} = formData;
     var price = 0;
     var arPrice=undefined;
     var depPrice = 0;
-    price += (await Flight.findOne({flight_number:flightID})).price;
-    arPrice = price;
-    if (arrivalflightID){
-        price += (await Flight.findOne({flight_number:arrivalflightID})).price;
-        depPrice = (price-arPrice)*passengers.length;
+    if(type === "flight"){
+        price += (await Flight.findOne({flight_number:departureID})).price;
+        arPrice = price;
+        if (arrivalID){
+            price += (await Flight.findOne({flight_number:arrivalID})).price;
+            depPrice = (price-arPrice)*passengers.length;
+        }
+    }
+    else if(type === "train"){
+        price += (await Train.findOne({number:departureID})).price;
+        arPrice = price;
     }
     arPrice = arPrice * passengers.length;
     price = price * passengers.length;
@@ -97,8 +68,8 @@ router.post("/save",isLoggedIn, async(req,res)=>{
         price,
         passengers,
         type,
-        departureflightID: flightID,
-        arrivalflightID,
+        departureID,
+        arrivalID,
         arrivalTime,
         departureTime,
         email: req.user.email,

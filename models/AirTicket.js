@@ -12,7 +12,7 @@ const airTicketSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
-  departureflightID:{
+  departureID:{
     type:String,
     required:true
   },
@@ -20,7 +20,7 @@ const airTicketSchema = new mongoose.Schema({
     type: Date,
     required: false
   },
-  arrivalflightID:{
+  arrivalID:{
     type:String,
     required:false
   },

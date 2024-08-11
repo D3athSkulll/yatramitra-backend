@@ -1,6 +1,5 @@
-const mongoose = require('../connections/db'); // Ensure the correct path to your db.js file
+const mongoose = require('../connections/db'); 
 
-// Airport Schema
 const stationSchema = new mongoose.Schema({
     name: { type: String, required: true },
     city: { type: String, required: true },
@@ -10,7 +9,6 @@ const stationSchema = new mongoose.Schema({
 
 const Station = mongoose.model('Stations', stationSchema);
 
-// Flight Schema
 
 const trainSchema = new mongoose.Schema({
     name: {
@@ -46,7 +44,11 @@ const trainSchema = new mongoose.Schema({
         required: true,
         min: 0
       }
-    }]
+    }],
+    price: {
+      type: Number,
+      required: true,
+    }
   });
   trainSchema.index({ 'schedules.date': 1 });
   trainSchema.index({ 'schedules.stoppages.station': 1 });

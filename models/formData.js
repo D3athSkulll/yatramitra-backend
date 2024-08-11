@@ -32,11 +32,11 @@ const mongoose = require('../connections/db');
         type: String,
         required: true
     },
-    departureflightID:{
+    departureID:{
         type: String,
         required: true
     },
-    arrivalflightID:{
+    arrivalID:{
         type: String,
         required: false
     },
@@ -67,4 +67,5 @@ const mongoose = require('../connections/db');
         }
     }]
 });
-module.exports = formDataSchema;
+const formDB = mongoose.model('formData',formDataSchema);
+module.exports = formDB;
