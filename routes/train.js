@@ -46,9 +46,24 @@ router.post('/search', async (req, res) => {
 
     const scheduleData = relevantSchedules.find(schedule => schedule.availableSeats >= requiredSeats);
 
-    return scheduleData ? { ...train.toObject(), schedules: [scheduleData] } : null;
+    if (scheduleData) {
+      const departureStoppage = scheduleData.stoppages.find(stoppage => stoppage.station === departureStation);
+      const arrivalStoppage = scheduleData.stoppages.find(stoppage => stoppage.station === arrivalStation);
+
+      return {
+        trainNumber: train.number,
+        trainName: train.name,
+        departureStation: departureStation,
+        arrivalStation: arrivalStation,
+        departureTime: departureStoppage ? departureStoppage.departureTime : null,
+        arrivalTime: arrivalStoppage ? arrivalStoppage.arrivalTime : null,
+        price: scheduleData.price
+      };
+    }
+    return null;
   }).filter(train => train !== null);
-  res.json(filteredTrains);
+
+  res.json({data:filteredTrains});
 });
 
 module.exports = router;
