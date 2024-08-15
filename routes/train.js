@@ -71,6 +71,8 @@ router.post('/search', async (req, res) => {
       return {
         trainNumber: train.number,
         trainName: train.name,
+        trainStart: scheduleData.stoppages[0].station,
+        trainEnd: scheduleData.stoppages[scheduleData.stoppages.length - 1].station,
         departureStation: departureStation,
         arrivalStation: arrivalStation,
         departureTime: departureStoppage ? departureStoppage.departureTime : null,
