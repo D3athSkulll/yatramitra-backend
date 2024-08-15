@@ -63,7 +63,7 @@ router.post('/search', async (req, res) => {
     return null;
   }).filter(train => train !== null);
 
-  res.json({data:filteredTrains});
+  res.json({trains: filteredTrains});
 });
 
 module.exports = router;
