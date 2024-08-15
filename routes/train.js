@@ -3,6 +3,24 @@ const {Train, Station} = require("../models/trainSearch");
 require("dotenv").config();
 const router = express.Router();
 require("dotenv").config();
+
+const calculateDuration = (departureTime, arrivalTime) => {
+  const [departureHour, departureMinute] = departureTime.split(':').map(Number);
+  const [arrivalHour, arrivalMinute] = arrivalTime.split(':').map(Number);
+
+  const departureDate = new Date();
+  departureDate.setHours(departureHour, departureMinute, 0);
+  
+  const arrivalDate = new Date();
+  arrivalDate.setHours(arrivalHour, arrivalMinute, 0);
+
+  if (arrivalDate < departureDate) {
+      arrivalDate.setDate(arrivalDate.getDate() + 1);
+  }
+
+  return arrivalDate - departureDate;
+};
+
 router.get("/autocomplete", async (req, res) => {
   const query = req.query.query;
   const searchRegex = new RegExp(`^${query}`, 'i');
@@ -57,6 +75,7 @@ router.post('/search', async (req, res) => {
         arrivalStation: arrivalStation,
         departureTime: departureStoppage ? departureStoppage.departureTime : null,
         arrivalTime: arrivalStoppage ? arrivalStoppage.arrivalTime : null,
+        //journeyDuration: departureStoppage && arrivalStoppage ? calculateDuration(departureStoppage.departureTime, arrivalStoppage.arrivalTime) : null,
         price: scheduleData.price
       };
     }
