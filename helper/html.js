@@ -30,7 +30,7 @@ const generateHTML = (data, payment) => {
             <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                 <thead>
                     <tr>
-                        <th style="border: 1px solid #ddd; padding: 10px; text-align: left; background-color: #f2f2f2;">Flight Details</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: left; background-color: #f2f2f2;">${data.type.toUpperCase()} Details</th>
                         <th style="border: 1px solid #ddd; padding: 10px; text-align: left; background-color: #f2f2f2;">Base Fare</th>
                         <th style="border: 1px solid #ddd; padding: 10px; text-align: left; background-color: #f2f2f2;">Taxes & Fee</th>
                         <th style="border: 1px solid #ddd; padding: 10px; text-align: left; background-color: #f2f2f2;">Amount</th>
@@ -39,9 +39,9 @@ const generateHTML = (data, payment) => {
                 <tbody>
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 10px;">${data.departureID} - ${data.source} to ${data.destination}<br>Travel Date - ${data.departure.toLocaleDateString('en-IN')}, ${data.departureTime}<br>${data.passengers.map(p => p.name).join(", ")}</td>
-                        <td style="border: 1px solid #ddd; padding: 10px;">₹${data.arrivalPrice?data.departurePrice:payment.amount}</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">₹${data.departurePrice}</td>
                         <td style="border: 1px solid #ddd; padding: 10px;">0</td>
-                        <td style="border: 1px solid #ddd; padding: 10px;">₹${data.arrivalPrice?data.departurePrice:payment.amount}</td>
+                        <td style="border: 1px solid #ddd; padding: 10px;">₹${data.departurePrice}</td>
                     </tr>`
                     if(data.arrivalID){
                        html+= `

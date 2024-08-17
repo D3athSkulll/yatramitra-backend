@@ -67,7 +67,7 @@ router.post('/search', async (req, res) => {
     if (scheduleData) {
       const departureStoppage = scheduleData.stoppages.find(stoppage => stoppage.station === departureStation);
       const arrivalStoppage = scheduleData.stoppages.find(stoppage => stoppage.station === arrivalStation);
-
+      const price = arrivalStoppage.price - departureStoppage.price;
       return {
         trainNumber: train.number,
         trainName: train.name,
@@ -78,7 +78,7 @@ router.post('/search', async (req, res) => {
         departureTime: departureStoppage ? departureStoppage.departureTime : null,
         arrivalTime: arrivalStoppage ? arrivalStoppage.arrivalTime : null,
         //journeyDuration: departureStoppage && arrivalStoppage ? calculateDuration(departureStoppage.departureTime, arrivalStoppage.arrivalTime) : null,
-        price: scheduleData.price
+        price
       };
     }
     return null;

@@ -15,7 +15,12 @@ function generatePNR(){
 async function sendEmailAndSave(data, payment){
     const user = await userSchema.findOne({email: data.email});
     data.pnr = generatePNR();
+    if(data.type === "flight"){
     user.tickets.air.push(data);
+    }
+    else if(data.type === "train"){
+        user.tickets.train.push(data);
+    }
     try{
         await user.save();
         sendEmail(data, payment);
@@ -48,17 +53,25 @@ router.post("/save",isLoggedIn, async(req,res)=>{
     var depPrice = 0;
     if(type === "flight"){
         price += (await Flight.findOne({flight_number:departureID})).price;
-        arPrice = price;
+        depPrice = price;
         if (arrivalID){
             price += (await Flight.findOne({flight_number:arrivalID})).price;
-            depPrice = (price-arPrice)*passengers.length;
+            arPrice = price - depPrice;
         }
     }
     else if(type === "train"){
-        price += (await Train.findOne({number:departureID})).price;
-        arPrice = price;
+        const train =  (await Train.findOne({number:departureID}));
+        const sourceIndex = train.schedules[0].stoppages.findIndex(stoppage => stoppage.station === source);
+        const destinationIndex = train.schedules[0].stoppages.findIndex(stoppage => stoppage.station === destination);
+        const sourcePrice = train.schedules[0].stoppages[sourceIndex].price;
+        const destinationPrice = train.schedules[0].stoppages[destinationIndex].price;
+        price = destinationPrice - sourcePrice;
+        depPrice = price;
     }
-    arPrice = arPrice * passengers.length;
+    depPrice = depPrice * passengers.length;
+    if( arPrice){
+        arPrice = arPrice * passengers.length;
+    }
     price = price * passengers.length;
     const uniqueId = await formDB.create({
         source,

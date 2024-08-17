@@ -1,5 +1,5 @@
 const express = require("express");
-const {Airline, Airport, Flight} = require("../models/flightSearch");
+const {Bus, City, busComapny} = require("../models/busSearch");
 const {isLoggedIn} = require("../middleware/login");
 require("dotenv").config();
 
@@ -21,11 +21,11 @@ const calculateDuration = (departureTime, arrivalTime) => {
 };
 
 const router = express.Router();
-router.get("/flightData/:id", isLoggedIn, async (req, res) => {
+router.get("/busData/:id", isLoggedIn, async (req, res) => {
     const id = req.params.id;
     try {
-        const data = await Flight.findOne({
-            flight_number: id
+        const data = await Bus.findOne({
+            bus_number: id
         }).lean();
         res.json(data);
     } catch (e) {
@@ -38,16 +38,14 @@ router.get("/autocomplete", isLoggedIn, async (req, res) => {
 
     try {
         const searchRegex = new RegExp(`^${query}`, 'i');
-        const airports = await Airport.find({
+        const cities = await City.find({
             $or: [
-                { name: searchRegex },
                 { city: searchRegex },
                 { country: searchRegex },
-                { iata_code: searchRegex }
             ]
         }).limit(10); 
 
-        res.json(airports);
+        res.json(cities);
     } catch (e) {
         console.log(e);
         res.status(500).json([]);
@@ -56,47 +54,48 @@ router.get("/autocomplete", isLoggedIn, async (req, res) => {
 router.post('/search', async (req, res) => {
     const { origin, destination, departureDate, returnDate, adults } = req.body;
     try {
-        const data = await Flight.find({
+        const data = await Bus.find({
             origin: origin,
             destination: destination,
             'dates.date': departureDate,
             'dates.availableSeats': { $gt: adults }
         }).lean();
-        const airlines = await Airline.find().lean();
-        const airlineMap = airlines.reduce((map, airline) => {
+        const companies = await busComapny.find().lean();
+        //Create airline map to map id to name
+        const companieMap = companies.reduce((map, airline) => {
             map[airline._id] = airline.name;
             return map;
         }, {});
 
-        const processedFlights = data.map(flight => {
-            const travelTime = calculateDuration(flight.departure_time, flight.arrival_time);
+        const processedBuss = data.map(bus => {
+            const travelTime = calculateDuration(bus.departure_time, bus.arrival_time);
             
-            const airlineName = airlineMap[flight.airline_id] || 'Unknown';
-            const {dates, airline_id, ...flightData} = flight;
+            const companyName = companieMap[bus.airline_id] || 'Unknown';
+            const {dates, airline_id, ...busData} = bus;
             return {
-                ...flightData,
+                ...busData,
                 travel_time: travelTime,
-                airline_name: airlineName,
+                companyName,
             };
         });
 
-        processedFlights.sort((a, b) => a.travel_time - b.travel_time);
-        var returnFlightsProcessed = [];
+        processedBuss.sort((a, b) => a.travel_time - b.travel_time);
+        var returnBussProcessed = [];
         if(returnDate){
-            const returnFlights = await Flight.find({
+            const returnBuss = await Bus.find({
                 origin: origin,
                 destination: destination,
-                'dates.date': departureDate,
-                'dates.availableSeats': { $gt: adults }
+                dates: departureDate,
+                availableSeats: { $gt: adults }
             }).lean();
     
-             returnFlightsProcessed = returnFlights.map(flight => {
-                const travelTime = calculateDuration(flight.departure_time, flight.arrival_time);
+             returnBussProcessed = returnBuss.map(bus => {
+                const travelTime = calculateDuration(bus.departure_time, bus.arrival_time);
                 
-                const airlineName = airlineMap[flight.airline_id] || 'Unknown';
-                const {dates, airline_id, ...flightData} = flight;
+                const airlineName = airlineMap[bus.airline_id] || 'Unknown';
+                const {dates, airline_id, ...busData} = bus;
                 return {
-                    ...flightData,
+                    ...busData,
                     travel_time: travelTime,
                     airline_name: airlineName,
                 };
@@ -104,11 +103,11 @@ router.post('/search', async (req, res) => {
     
         }
         
-        returnFlightsProcessed.sort((a, b) => a.travel_time - b.travel_time);
+        returnBussProcessed.sort((a, b) => a.travel_time - b.travel_time);
         const final = {
             isOneWay: returnDate === undefined,
-            departureFlights: processedFlights,
-            returnFlights: returnFlightsProcessed,
+            departureBus: processedBuss,
+            returnBus: returnBussProcessed,
             adults,
             departureDate,
             arrivalDate: returnDate? returnDate : null

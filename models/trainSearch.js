@@ -31,12 +31,16 @@ const trainSchema = new mongoose.Schema({
           required: true
         },
         arrivalTime: {
-          type: Date, // Format: "HH:mm"
+          type: Date,
           required: false
         },
         departureTime: {
-          type: Date, // Format: "HH:mm"
+          type: Date,
           required: false
+        },
+        price:{
+          type: Number,
+          required: true
         }
       }],
       availableSeats: {
@@ -45,10 +49,6 @@ const trainSchema = new mongoose.Schema({
         min: 0
       }
     }],
-    price: {
-      type: Number,
-      required: true,
-    }
   });
   trainSchema.index({ 'schedules.date': 1 });
   trainSchema.index({ 'schedules.stoppages.station': 1 });
