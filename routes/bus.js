@@ -21,7 +21,7 @@ const calculateDuration = (departureTime, arrivalTime) => {
 };
 
 const router = express.Router();
-router.get("/busData/:id", isLoggedIn, async (req, res) => {
+router.get("/busData/:id", async (req, res) => {
     const id = req.params.id;
     try {
         const data = await Bus.findOne({
@@ -33,7 +33,7 @@ router.get("/busData/:id", isLoggedIn, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
-router.get("/autocomplete", isLoggedIn, async (req, res) => {
+router.get("/autocomplete", async (req, res) => {
     const { query } = req.query;
 
     try {
@@ -85,19 +85,17 @@ router.post('/search', async (req, res) => {
             const returnBuss = await Bus.find({
                 origin: origin,
                 destination: destination,
-                dates: departureDate,
-                availableSeats: { $gt: adults }
+                'dates.date': returnDate,
+                'dates.availableSeats': { $gt: adults }
             }).lean();
     
              returnBussProcessed = returnBuss.map(bus => {
                 const travelTime = calculateDuration(bus.departure_time, bus.arrival_time);
                 
-                const airlineName = airlineMap[bus.airline_id] || 'Unknown';
                 const {dates, airline_id, ...busData} = bus;
                 return {
                     ...busData,
                     travel_time: travelTime,
-                    airline_name: airlineName,
                 };
             });
     

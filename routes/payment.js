@@ -8,10 +8,31 @@ const userSchema = require("../models/user");
 const { Flight } = require("../models/flightSearch");
 const { Train } = require("../models/trainSearch");
 const sendEmail = require("../helper/mail");
+const { Bus } = require("../models/busSearch");
 router.use(express.json());
 function generatePNR(){
     return Math.random().toString(36).substring(2, 10).toUpperCase();
 }
+function generateSeatAssignments(passengers, totalSeats, type) {
+    return passengers.map((passenger, index) => {
+      const seatsRemain = totalSeats - index;
+      
+      const row = Math.ceil(seatsRemain / 4);
+      const col = seatsRemain % 4 || 4; // Ensure column is 1-based (1, 2, 3, 4)
+      
+      const colLetter = String.fromCharCode(64 + col);
+      if(type === "arr"){
+        return {
+            ...passenger,
+            arrseat: `${row}${colLetter}`
+          };
+      }
+      return {
+        ...passenger,
+        depseat: `${row}${colLetter}`
+      };
+    });
+  }
 async function sendEmailAndSave(data, payment){
     const user = await userSchema.findOne({email: data.email});
     data.pnr = generatePNR();
@@ -47,17 +68,28 @@ router.post("/data",async(req,res)=>{
 });
 router.post("/save",isLoggedIn, async(req,res)=>{
     const formData = req.body;
-    const {source,destination,departure,arrival,passengers, type, departureID, arrivalID, arrivalTime, departureTime} = formData;
+    var {source,destination,departure,arrival,passengers, type, departureID, arrivalID, arrivalTime, departureTime} = formData;
     var price = 0;
     var arPrice=undefined;
     var depPrice = 0;
     if(type === "flight"){
-        price += (await Flight.findOne({flight_number:departureID})).price;
+        var flight = (await Flight.findOne({flight_number:departureID}));
+        const schedule = flight.dates.find(schedule => schedule.date===departure);
+        price+= flight.price;
         depPrice = price;
+        passengers = generateSeatAssignments(passengers,schedule.availableSeats,'dep');
+        schedule.availableSeats -= passengers.length;
+        flight.save();
         if (arrivalID){
-            price += (await Flight.findOne({flight_number:arrivalID})).price;
+            flight = (await Flight.findOne({flight_number:arrivalID}));
+            price += flight.price;
+            const schedule = flight.dates.find(schedule =>schedule.date===arrival);
+            passengers = generateSeatAssignments(passengers,schedule.availableSeats,'arr');
+            schedule.availableSeats -= passengers.length;
             arPrice = price - depPrice;
+            flight.save();
         }
+
     }
     else if(type === "train"){
         const train =  (await Train.findOne({number:departureID}));
@@ -67,6 +99,24 @@ router.post("/save",isLoggedIn, async(req,res)=>{
         const destinationPrice = train.schedules[0].stoppages[destinationIndex].price;
         price = destinationPrice - sourcePrice;
         depPrice = price;
+    }
+    else if(type === "bus"){
+        var bus = (await Bus.findOne({bus_number:departureID}));
+        const schedule = bus.dates.find(schedule => schedule.date===departure);
+        price+= bus.price;
+        depPrice = price;
+        passengers = generateSeatAssignments(passengers,schedule.availableSeats,'dep');
+        schedule.availableSeats -= passengers.length;
+        bus.save();
+        if (arrivalID){
+            bus = (await Bus.findOne({bus_number:arrivalID}));
+            price += bus.price;
+            const schedule = bus.dates.find(schedule =>schedule.date===arrival);
+            passengers = generateSeatAssignments(passengers,schedule.availableSeats,'arr');
+            schedule.availableSeats -= passengers.length;
+            arPrice = price - depPrice;
+            bus.save();
+        }
     }
     depPrice = depPrice * passengers.length;
     if( arPrice){

@@ -64,6 +64,14 @@ const mongoose = require('../connections/db');
         gender:{
             type: String,
             required: true
+        },
+        depseat:{
+            type: String,
+            required: false
+        },
+        arrseat:{
+            type: String,
+            required: false
         }
     }]
 });

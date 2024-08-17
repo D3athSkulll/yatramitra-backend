@@ -12,8 +12,24 @@ const busTicketSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  departureID:{
+    type:String,
+    required:true
+  },
   arrival: {
     type: Date,
+    required: false
+  },
+  arrivalID:{
+    type:String,
+    required:false
+  },
+  arrivalTime:{
+    type: String,
+    required: false
+  },
+  departureTime:{
+    type: String,
     required: true
   },
   price: {
@@ -22,7 +38,7 @@ const busTicketSchema = new mongoose.Schema({
   },
   class:{
     type:String,
-    required:true
+    required:false
   },
   pnr:{
     type:String,

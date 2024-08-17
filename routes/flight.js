@@ -21,7 +21,7 @@ const calculateDuration = (departureTime, arrivalTime) => {
 };
 
 const router = express.Router();
-router.get("/flightData/:id", isLoggedIn, async (req, res) => {
+router.get("/flightData/:id", async (req, res) => {
     const id = req.params.id;
     try {
         const data = await Flight.findOne({
@@ -33,7 +33,7 @@ router.get("/flightData/:id", isLoggedIn, async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
-router.get("/autocomplete", isLoggedIn, async (req, res) => {
+router.get("/autocomplete", async (req, res) => {
     const { query } = req.query;
 
     try {
