@@ -100,7 +100,7 @@ router.post("/forgot-password", async (req, res) => {
       { email, token, expires },
       { upsert: true, new: true }
     );
-    const resetLink = `/reset-password?token=${token}`;
+    const resetLink = `https://yatramitra.vercel.app/views/reset-password.html?token=${token}`;
     const mail = process.env.EMAIL;
     const pass = process.env.PASS;
     const transporter = nodemailer.createTransport({
