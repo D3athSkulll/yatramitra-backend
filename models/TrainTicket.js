@@ -12,6 +12,14 @@ const trainTicketSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  departureID:{
+    type:String,
+    required:true
+  },
+  departureTime:{
+    type:String,
+    required:true
+  },
   price: {
     type: Number,
     required: true

@@ -11,7 +11,7 @@ const auth = require("./routes/auth");
 const payment = require("./routes/payment");
 const { isLoggedIn } = require("./middleware/login");
 
-const JWT_SECRET = process.env.SECRET; // Replace with your actual secret
+const JWT_SECRET = process.env.SECRET;
 app.use(cookieParser());
 app.use(session({ secret: JWT_SECRET, resave: false, saveUninitialized: true }));
 app.use(cors());
@@ -19,17 +19,10 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "../frontend/public")));
 app.use("/login", (req,res)=>{
   res.sendFile(path.join(__dirname, "../frontend/public/views/login.html"));
-})
-// JWT Middleware
-app.use("/protected", isLoggedIn, (req,res)=>{
-  res.sendFile(path.join(__dirname, "../frontend/public/views/homepage.html"));
 });
-app.use("/search",(req,res)=>{
-  res.sendFile(path.join(__dirname, "../frontend/public/views/flightsearch.html"));
-})
-// Routes
-app.use("/api", api);
 app.use("/auth", auth);
+app.use(isLoggedIn);
+app.use("/api", api);
 app.use("/payment", payment);
 
 app.listen(3000, () => {

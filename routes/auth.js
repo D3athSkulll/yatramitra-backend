@@ -21,7 +21,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: "Your credentials are incorrect. Please try again." });
     }
 
-    const token = jwt.sign({ id: user._id, email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, email }, JWT_SECRET, { expiresIn: '2h' });
     console.log(token);
     return res.json({ message: "Login successful", token, user });
   } catch (error) {
@@ -53,7 +53,7 @@ router.post("/register", async (req, res) => {
     });
     await user.save();
 
-    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '2h' });
     // req.session.token = token;
     console.log(token);
     return res.json({ message: "Registration and login successful", token, user });

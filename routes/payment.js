@@ -42,6 +42,9 @@ async function sendEmailAndSave(data, payment){
     else if(data.type === "train"){
         user.tickets.train.push(data);
     }
+    else if(data.type === "bus"){
+        user.tickets.bus.push(data);
+    }
     try{
         await user.save();
         sendEmail(data, payment);
@@ -58,7 +61,7 @@ router.post("/data",async(req,res)=>{
     const billingAddress = paymentMethod;
     const uniqueID = paymentIntent.metadata.uniqueId;
     try{
-        const data = await formDB.findById(uniqueID);
+        const data = await formDB.findByIdAndDelete(uniqueID);
         sendEmailAndSave(data.toObject(),{amount: data.price, billingAddress});
         res.status(200).json({message:"Data saved"});
     }catch(err){
@@ -92,12 +95,24 @@ router.post("/save",isLoggedIn, async(req,res)=>{
 
     }
     else if(type === "train"){
+        const startOfDay = new Date(departure);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(departure);
+        endOfDay.setHours(23, 59, 59, 999);
+
         const train =  (await Train.findOne({number:departureID}));
         const sourceIndex = train.schedules[0].stoppages.findIndex(stoppage => stoppage.station === source);
         const destinationIndex = train.schedules[0].stoppages.findIndex(stoppage => stoppage.station === destination);
         const sourcePrice = train.schedules[0].stoppages[sourceIndex].price;
         const destinationPrice = train.schedules[0].stoppages[destinationIndex].price;
+        
+        const schedule = train.schedules.find(schedule => 
+            schedule.date >= startOfDay && schedule.date <= endOfDay &&
+            schedule.stoppages.some(stoppage => stoppage.station === source)
+          );
+        schedule.availableSeats -= passengers.length;
         price = destinationPrice - sourcePrice;
+        departureID = departureID +" - " + train.name;
         depPrice = price;
     }
     else if(type === "bus"){
