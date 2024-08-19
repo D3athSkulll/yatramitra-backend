@@ -34,6 +34,8 @@ function generateSeatAssignments(passengers, totalSeats, type) {
     });
   }
 async function sendEmailAndSave(data, payment){
+    console.log(data, payment);
+    
     const user = await userSchema.findOne({email: data.email});
     data.pnr = generatePNR();
     if(data.type === "flight"){
