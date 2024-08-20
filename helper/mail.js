@@ -3,7 +3,6 @@ const genHTML = require("./html");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 async function sendEmail(data, payment){
-    console.log(data, payment);
     const html = genHTML(data, payment);
     pdf.create(html, {format: "A4"}).toBuffer((err, buffer)=>{
         if(err) return console.log(err);
